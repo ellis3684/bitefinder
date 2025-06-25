@@ -1,0 +1,138 @@
+services:
+  backend:
+    build: ./backend
+    expose:
+      - "8000"
+    volumes:
+      - ./logs:/app/logs
+      - static_volume:/app/staticfiles  # collectstatic target
+    env_file:
+      - backend/.env
+    environment:
+      DJANGO_SECRET_KEY_FILE: "/run/secrets/django_secret_key"
+      FATSECRET_CLIENT_ID_FILE: "/run/secrets/fatsecret_client_id"
+      FATSECRET_CLIENT_SECRET_FILE: "/run/secrets/fatsecret_client_secret"
+      FOURSQUARE_API_KEY_FILE: "/run/secrets/foursquare_api_key"
+      GOOGLE_MAPS_API_KEY_FILE: "/run/secrets/google_maps_api_key"
+      OPENAI_API_KEY_FILE: "/run/secrets/openai_api_key"
+      POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
+    secrets:
+      - db_password
+      - django_secret_key
+      - fatsecret_client_id
+      - fatsecret_client_secret
+      - foursquare_api_key
+      - google_maps_api_key
+      - openai_api_key
+    depends_on:
+      - db
+      - redis
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=/api
+    depends_on:
+      - backend
+    ports:
+      - "80:80"   # expose only nginx on host
+    volumes:
+      - static_volume:/staticfiles:ro   # serves Django static
+
+  celery:
+    build: ./backend
+    command: celery -A config worker --loglevel=info
+    entrypoint: [""]
+    env_file:
+      - backend/.env
+    environment:
+      DJANGO_SECRET_KEY_FILE: "/run/secrets/django_secret_key"
+      FATSECRET_CLIENT_ID_FILE: "/run/secrets/fatsecret_client_id"
+      FATSECRET_CLIENT_SECRET_FILE: "/run/secrets/fatsecret_client_secret"
+      FOURSQUARE_API_KEY_FILE: "/run/secrets/foursquare_api_key"
+      GOOGLE_MAPS_API_KEY_FILE: "/run/secrets/google_maps_api_key"
+      OPENAI_API_KEY_FILE: "/run/secrets/openai_api_key"
+      POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
+    secrets:
+      - django_secret_key
+      - db_password
+      - fatsecret_client_id
+      - fatsecret_client_secret
+      - foursquare_api_key
+      - google_maps_api_key
+      - openai_api_key
+    depends_on:
+      - backend
+      - redis
+    volumes:
+      - ./logs:/app/logs
+
+
+  celery-beat:
+    build: ./backend
+    entrypoint: [""]
+    command: celery -A config beat --loglevel=info
+    env_file:
+      - backend/.env
+    environment:
+      DJANGO_SECRET_KEY_FILE: "/run/secrets/django_secret_key"
+      FATSECRET_CLIENT_ID_FILE: "/run/secrets/fatsecret_client_id"
+      FATSECRET_CLIENT_SECRET_FILE: "/run/secrets/fatsecret_client_secret"
+      FOURSQUARE_API_KEY_FILE: "/run/secrets/foursquare_api_key"
+      GOOGLE_MAPS_API_KEY_FILE: "/run/secrets/google_maps_api_key"
+      OPENAI_API_KEY_FILE: "/run/secrets/openai_api_key"
+      POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
+    secrets:
+      - django_secret_key
+      - db_password
+      - fatsecret_client_id
+      - fatsecret_client_secret
+      - foursquare_api_key
+      - google_maps_api_key
+      - openai_api_key
+    depends_on:
+      - backend
+      - redis
+    volumes:
+      - ./logs:/app/logs
+
+
+  db:
+    image: postgres:17
+    env_file:
+      - backend/.env
+    environment:
+      POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
+    secrets:
+      - db_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+secrets:
+  django_secret_key:
+    file: ./secrets/django_secret_key
+  db_password:
+    file: ./secrets/db_password
+  fatsecret_client_id:
+    file: ./secrets/fatsecret_client_id
+  fatsecret_client_secret:
+    file: ./secrets/fatsecret_client_secret
+  foursquare_api_key:
+    file: ./secrets/foursquare_api_key
+  google_maps_api_key:
+    file: ./secrets/google_maps_api_key
+  openai_api_key:
+    file: ./secrets/openai_api_key
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_volume:

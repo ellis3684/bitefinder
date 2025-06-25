@@ -1,108 +1,10 @@
-services:
-  backend:
-    build: ./backend
-    expose:
-      - "8000"
-    volumes:
-      - ./logs:/app/logs
-      - static_volume:/app/staticfiles  # collectstatic target
-    env_file:
-      - backend/.env
-    environment:
-      DJANGO_SECRET_KEY_FILE: "/run/secrets/django_secret_key"
-      FATSECRET_CLIENT_ID_FILE: "/run/secrets/fatsecret_client_id"
-      FATSECRET_CLIENT_SECRET_FILE: "/run/secrets/fatsecret_client_secret"
-      FOURSQUARE_API_KEY_FILE: "/run/secrets/foursquare_api_key"
-      POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
-    secrets:
-      - db_password
-      - django_secret_key
-      - fatsecret_client_id
-      - fatsecret_client_secret
-      - foursquare_api_key
-    depends_on:
-      - db
-      - redis
+version: "3.9"
 
-  frontend:
-    build:
-      context: ./frontend
-      args:
-        - VITE_API_URL=/api
-    depends_on:
-      - backend
-    ports:
-      - "80:80"   # expose only nginx on host
-    volumes:
-      - static_volume:/staticfiles:ro   # serves Django static
-
-  celery:
-    build: ./backend
-    command: celery -A config worker --loglevel=info
-    entrypoint: [""]
-    env_file:
-      - backend/.env
-    environment:
-      DJANGO_SECRET_KEY_FILE: "/run/secrets/django_secret_key"
-      FATSECRET_CLIENT_ID_FILE: "/run/secrets/fatsecret_client_id"
-      FATSECRET_CLIENT_SECRET_FILE: "/run/secrets/fatsecret_client_secret"
-      FOURSQUARE_API_KEY_FILE: "/run/secrets/foursquare_api_key"
-      POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
-    secrets:
-      - django_secret_key
-      - db_password
-      - fatsecret_client_id
-      - fatsecret_client_secret
-      - foursquare_api_key
-    depends_on:
-      - backend
-      - redis
-    volumes:
-      - ./logs:/app/logs
-
-
-  celery-beat:
-    build: ./backend
-    entrypoint: [""]
-    command: celery -A config beat --loglevel=info
-    env_file:
-      - backend/.env
-    environment:
-      DJANGO_SECRET_KEY_FILE: "/run/secrets/django_secret_key"
-      FATSECRET_CLIENT_ID_FILE: "/run/secrets/fatsecret_client_id"
-      FATSECRET_CLIENT_SECRET_FILE: "/run/secrets/fatsecret_client_secret"
-      FOURSQUARE_API_KEY_FILE: "/run/secrets/foursquare_api_key"
-      POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
-    secrets:
-      - django_secret_key
-      - db_password
-      - fatsecret_client_id
-      - fatsecret_client_secret
-      - foursquare_api_key
-    depends_on:
-      - backend
-      - redis
-    volumes:
-      - ./logs:/app/logs
-
-
-  db:
-    image: postgres:17
-    env_file:
-      - backend/.env
-    environment:
-      POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
-    secrets:
-      - db_password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  redis:
-    image: redis:7
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
+volumes:
+  postgres_data:
+  redis_data:
+  static_volume:           # Django collectstatic output
+  certs:                   # Lets-Encrypt files (shared with frontend + certbot)
 
 secrets:
   django_secret_key:
@@ -116,7 +18,127 @@ secrets:
   foursquare_api_key:
     file: ./secrets/foursquare_api_key
 
-volumes:
-  postgres_data:
-  redis_data:
-  static_volume:
+services:
+  # ------------------------------------------------------------------ #
+  # Django backend (Gunicorn)
+  # ------------------------------------------------------------------ #
+  backend:
+    build: ./backend
+    expose:
+      - "8000"
+    volumes:
+      - ./logs:/app/logs
+      - static_volume:/app/staticfiles
+    env_file:
+      - backend/.env
+    environment:
+      DJANGO_SECRET_KEY_FILE: "/run/secrets/django_secret_key"
+      POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
+      FATSECRET_CLIENT_ID_FILE: "/run/secrets/fatsecret_client_id"
+      FATSECRET_CLIENT_SECRET_FILE: "/run/secrets/fatsecret_client_secret"
+      FOURSQUARE_API_KEY_FILE: "/run/secrets/foursquare_api_key"
+    secrets:
+      - django_secret_key
+      - db_password
+      - fatsecret_client_id
+      - fatsecret_client_secret
+      - foursquare_api_key
+    depends_on:
+      - db
+      - redis
+
+  # ------------------------------------------------------------------ #
+  # Celery worker & beat
+  # ------------------------------------------------------------------ #
+  celery:
+    build: ./backend
+    entrypoint: [""]
+    command: celery -A config worker --loglevel=info
+    env_file: backend/.env
+    environment:
+      DJANGO_SECRET_KEY_FILE: "/run/secrets/django_secret_key"
+      POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
+      FATSECRET_CLIENT_ID_FILE: "/run/secrets/fatsecret_client_id"
+      FATSECRET_CLIENT_SECRET_FILE: "/run/secrets/fatsecret_client_secret"
+      FOURSQUARE_API_KEY_FILE: "/run/secrets/foursquare_api_key"
+    secrets:
+      - django_secret_key
+      - db_password
+      - fatsecret_client_id
+      - fatsecret_client_secret
+      - foursquare_api_key
+    depends_on:
+      - backend
+      - redis
+
+  celery-beat:
+    build: ./backend
+    entrypoint: [""]
+    command: celery -A config beat --loglevel=info
+    env_file: backend/.env
+    environment:
+      DJANGO_SECRET_KEY_FILE: "/run/secrets/django_secret_key"
+      POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
+      FATSECRET_CLIENT_ID_FILE: "/run/secrets/fatsecret_client_id"
+      FATSECRET_CLIENT_SECRET_FILE: "/run/secrets/fatsecret_client_secret"
+      FOURSQUARE_API_KEY_FILE: "/run/secrets/foursquare_api_key"
+    secrets:
+      - django_secret_key
+      - db_password
+      - fatsecret_client_id
+      - fatsecret_client_secret
+      - foursquare_api_key
+    depends_on:
+      - backend
+      - redis
+
+  # ------------------------------------------------------------------ #
+  # Postgres & Redis
+  # ------------------------------------------------------------------ #
+  db:
+    image: postgres:17
+    env_file: backend/.env
+    environment:
+      POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
+    secrets:
+      - db_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    volumes:
+      - redis_data:/data
+
+  # ------------------------------------------------------------------ #
+  # Frontend (Nginx + Vite dist  + TLS)
+  # ------------------------------------------------------------------ #
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"      # HTTP  (for ACME & redirect)
+      - "443:443"    # HTTPS
+    volumes:
+      - static_volume:/staticfiles:ro
+      - certs:/etc/letsencrypt:ro
+    depends_on:
+      - backend
+
+  # ------------------------------------------------------------------ #
+  # Certbot (one-shot init & cron renew inside container)
+  # ------------------------------------------------------------------ #
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - certs:/etc/letsencrypt
+    entrypoint: >
+      /bin/sh -c "
+        certbot certonly --standalone
+          --agree-tos --non-interactive
+          --email coreyellisdeveloper@gmail.com        \
+          -d bitefinder.dev             \
+        && echo '0 0 * * * certbot renew --quiet && nginx -s reload' | crontab -
+        && crond -f -d 8
+      "
+    networks:
+      - default

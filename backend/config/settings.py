@@ -24,8 +24,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 FATSECRET_CLIENT_ID = read_secret("FATSECRET_CLIENT_ID")
 FATSECRET_CLIENT_SECRET = read_secret("FATSECRET_CLIENT_SECRET")
 FOURSQUARE_API_KEY = read_secret("FOURSQUARE_API_KEY")
-GOOGLE_PLACES_API_KEY = read_secret("GOOGLE_MAPS_API_KEY")
-OPENAI_API_KEY = read_secret("OPENAI_API_KEY")
 SECRET_KEY = read_secret("DJANGO_SECRET_KEY")
 
 # ------------------------------------------------------------------------

@@ -13,8 +13,6 @@ services:
       FATSECRET_CLIENT_ID_FILE: "/run/secrets/fatsecret_client_id"
       FATSECRET_CLIENT_SECRET_FILE: "/run/secrets/fatsecret_client_secret"
       FOURSQUARE_API_KEY_FILE: "/run/secrets/foursquare_api_key"
-      GOOGLE_MAPS_API_KEY_FILE: "/run/secrets/google_maps_api_key"
-      OPENAI_API_KEY_FILE: "/run/secrets/openai_api_key"
       POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
     secrets:
       - db_password
@@ -22,8 +20,6 @@ services:
       - fatsecret_client_id
       - fatsecret_client_secret
       - foursquare_api_key
-      - google_maps_api_key
-      - openai_api_key
     depends_on:
       - db
       - redis
@@ -51,8 +47,6 @@ services:
       FATSECRET_CLIENT_ID_FILE: "/run/secrets/fatsecret_client_id"
       FATSECRET_CLIENT_SECRET_FILE: "/run/secrets/fatsecret_client_secret"
       FOURSQUARE_API_KEY_FILE: "/run/secrets/foursquare_api_key"
-      GOOGLE_MAPS_API_KEY_FILE: "/run/secrets/google_maps_api_key"
-      OPENAI_API_KEY_FILE: "/run/secrets/openai_api_key"
       POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
     secrets:
       - django_secret_key
@@ -60,8 +54,6 @@ services:
       - fatsecret_client_id
       - fatsecret_client_secret
       - foursquare_api_key
-      - google_maps_api_key
-      - openai_api_key
     depends_on:
       - backend
       - redis
@@ -80,8 +72,6 @@ services:
       FATSECRET_CLIENT_ID_FILE: "/run/secrets/fatsecret_client_id"
       FATSECRET_CLIENT_SECRET_FILE: "/run/secrets/fatsecret_client_secret"
       FOURSQUARE_API_KEY_FILE: "/run/secrets/foursquare_api_key"
-      GOOGLE_MAPS_API_KEY_FILE: "/run/secrets/google_maps_api_key"
-      OPENAI_API_KEY_FILE: "/run/secrets/openai_api_key"
       POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
     secrets:
       - django_secret_key
@@ -89,8 +79,6 @@ services:
       - fatsecret_client_id
       - fatsecret_client_secret
       - foursquare_api_key
-      - google_maps_api_key
-      - openai_api_key
     depends_on:
       - backend
       - redis
@@ -127,10 +115,6 @@ secrets:
     file: ./secrets/fatsecret_client_secret
   foursquare_api_key:
     file: ./secrets/foursquare_api_key
-  google_maps_api_key:
-    file: ./secrets/google_maps_api_key
-  openai_api_key:
-    file: ./secrets/openai_api_key
 
 volumes:
   postgres_data:

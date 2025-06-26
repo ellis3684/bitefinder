@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { api } from "@/lib/api";
 import Cookies from "js-cookie";
+import { useUser } from "@/contexts/UserContext";
 
 type MealItem = {
   id: number;
@@ -25,6 +26,7 @@ export default function RecommendMealPage() {
   const [savingIndex, setSavingIndex] = useState<number | null>(null);
   const [savedIndices, setSavedIndices] = useState<number[]>([]);
   const [noResults, setNoResults] = useState(false);
+  const { user } = useUser();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,19 +135,20 @@ export default function RecommendMealPage() {
                   </div>
 
                   <p className="font-medium">Total: {totalCalories} cal</p>
-
-                  <Button
-                    size="lg"
-                    className="px-6 py-3 text-base"
-                    onClick={() => handleSaveMeal(index)}
-                    disabled={savingIndex === index || savedIndices.includes(index)}
-                  >
-                    {savingIndex === index
-                      ? "Saving..."
-                      : savedIndices.includes(index)
-                      ? "Saved"
-                      : "Save This Meal"}
-                  </Button>
+                  {user && (
+                    <Button
+                      size="lg"
+                      className="px-6 py-3 text-base"
+                      onClick={() => handleSaveMeal(index)}
+                      disabled={savingIndex === index || savedIndices.includes(index)}
+                    >
+                      {savingIndex === index
+                        ? "Saving..."
+                        : savedIndices.includes(index)
+                        ? "Saved"
+                        : "Save This Meal"}
+                    </Button>                  
+                  )}
                 </Card>
               );
             })}

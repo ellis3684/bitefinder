@@ -64,7 +64,7 @@ The app combines:
 
 ```bash
 # Clone the repo
-git clone https://github.com/yourusername/bitefinder.git
+git clone https://github.com/ellis3684/bitefinder.git
 cd bitefinder
 
 # Build and run Docker containers

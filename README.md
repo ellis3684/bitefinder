@@ -2,7 +2,8 @@
 
 A full-stack web app that helps users find meal combinations from nearby restaurants that fit within their calorie budget.
 
-👉 **Live Demo:** [https://bitefinder.dev](https://bitefinder.dev)
+👉 **Live Demo:** [https://bitefinder.dev](https://bitefinder.dev)  
+👉 **Backend API Docs:** [https://bitefinder.dev/api/docs/](https://bitefinder.dev/api/docs/)
 
 ---
 
@@ -23,6 +24,8 @@ The app combines:
 
 ## 🚀 Features
 
+✅ Live demo deployed at [https://bitefinder.dev](https://bitefinder.dev)  
+✅ Auto-generated **Backend API Docs** available at [https://bitefinder.dev/api/docs/](https://bitefinder.dev/api/docs/)  
 ✅ Search nearby restaurants by location  
 ✅ Browse real menu items with calorie info  
 ✅ Get meal suggestions that fit your calorie limit  

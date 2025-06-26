@@ -34,13 +34,17 @@ DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "frontend",  # Docker-compose service name (Nginx container)
+    "frontend",
+    "bitefinder.dev",
+    "www.bitefinder.dev"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost",
     "http://127.0.0.1",
-    "http://localhost:5173",  # Vite dev server
+    "http://localhost:5173",
+    "https://bitefinder.dev",
+    "https://www.bitefinder.dev"
 ]
 
 AUTH_USER_MODEL = "users.CustomUser"

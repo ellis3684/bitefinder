@@ -2,6 +2,8 @@
 
 A full-stack web app that helps users find meal combinations from nearby restaurants that fit within their calorie budget.
 
+👉 **Live Demo:** [https://bitefinder.dev](https://bitefinder.dev)
+
 ---
 
 ## 🧑‍💻 About the Project
@@ -59,7 +61,7 @@ The app combines:
 
 ```bash
 # Clone the repo
-git clone https://github.com/ellis3684/bitefinder.git
+git clone https://github.com/yourusername/bitefinder.git
 cd bitefinder
 
 # Build and run Docker containers

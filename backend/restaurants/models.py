@@ -71,7 +71,7 @@ class Restaurant(models.Model):
         logger.info(f"Processing Foursquare chain CSV from: {csv_path}")
         try:
             df = pd.read_csv(csv_path)
-            df["chain_name"] = df["chain_name"].str.lower()
+            df["Chain Name"] = df["Chain Name"].str.lower()
 
             restaurants = list(cls.objects.values_list("name", flat=True))
             restaurants_lower = {name.lower(): name for name in restaurants}
@@ -80,8 +80,8 @@ class Restaurant(models.Model):
             unmatched_db_restaurants = set(restaurants_lower.values())
 
             for _, row in df.iterrows():
-                chain_name = row["chain_name"]
-                chain_id = row["chain_id"]
+                chain_name = row["Chain Name"]
+                chain_id = row["Chain ID"]
 
                 if chain_name in restaurants_lower:
                     matched[restaurants_lower[chain_name]] = chain_id

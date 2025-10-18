@@ -10,7 +10,7 @@ from restaurants.models import Restaurant
 logger = logging.getLogger(__name__)
 
 class FoursquareAPI:
-    BASE_URL = "https://api.foursquare.com/v3/places/search"
+    BASE_URL = "https://places-api.foursquare.com/places/search"
 
     def __init__(self):
         self.api_key = settings.FOURSQUARE_API_KEY
@@ -30,16 +30,16 @@ class FoursquareAPI:
                 "radius": radius,
                 "limit": 50,
                 "fields": "name,location,chains",
-                "chains": ",".join(batch)
+                "fsq_chain_ids": ",".join(batch)
             }
-            headers = {"Authorization": self.api_key, "Accept": "application/json"}
+            headers = {"Authorization": self.api_key, "Accept": "application/json", "X-Places-Api-Version": "2025-06-17"}
             response = requests.get(self.BASE_URL, params=params, headers=headers)
             data = response.json()
             
             if "results" in data:
                 for place in data["results"]:
                     formatted_address = place.get("location", {}).get("formatted_address", "Unknown Address")
-                    chain_id = place.get("chains", [{}])[0].get("id")
+                    chain_id = place.get("chains", [{}])[0].get("fsq_chain_id")
                     
                     try:
                         restaurant = Restaurant.objects.get(foursquare_chain_id=chain_id)
